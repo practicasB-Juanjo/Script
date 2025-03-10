@@ -112,7 +112,7 @@ try {
 # Actualizar controladores automáticamente
 try {
     $devices = Get-PnpDevice -Status "Error" | Where-Object { $_.Class -ne $null }
-    if ($devices) {
+    if ($devices.Count -gt 0) {
         foreach ($device in $devices) {
             try {
                 Update-PnpDevice -InstanceId $device.InstanceId -Confirm:$false
