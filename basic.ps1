@@ -101,8 +101,8 @@ try {
 
 # Buscar e instalar actualizaciones de Windows
 try {
-    Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser
-    Import-Module PSWindowsUpdate
+    Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser -ErrorAction Stop
+    Import-Module PSWindowsUpdate -ErrorAction Stop
     Get-WindowsUpdate -AcceptAll -Install -AutoReboot
     Registrar-Estado "Actualización de Windows" "Éxito"
 } catch {
