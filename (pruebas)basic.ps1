@@ -1,6 +1,6 @@
 # Ejecutar el script directamente desde GitHub usando Invoke-WebRequest
-#  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/basic.ps1" | Select-Object -ExpandProperty Content | Invoke-Expression
-#  irm "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/basic.ps1" | iex
+#  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/(pruebas)basic.ps1" | Select-Object -ExpandProperty Content | Invoke-Expression
+#  irm "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/(pruebas)basic.ps1" | iex
 # Inicializar un registro para seguimiento de operaciones
 $log = @()
 
