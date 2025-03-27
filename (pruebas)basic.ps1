@@ -1,6 +1,6 @@
 # Ejecutar el script directamente desde GitHub usando Invoke-WebRequest
-#  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/(pruebas)basic.ps1" | Select-Object -ExpandProperty Content | Invoke-Expression
-#  irm "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/(pruebas)basic.ps1" | iex
+#  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/basic.ps1" | Select-Object -ExpandProperty Content | Invoke-Expression
+#  irm "https://raw.githubusercontent.com/practicasB-Juanjo/Script/main/basic.ps1" | iex
 # Inicializar un registro para seguimiento de operaciones
 $log = @()
 
@@ -16,47 +16,60 @@ function Registrar-Estado {
     }
 }
 
+# Función para comprobar el éxito de una operación
+function Comprobar-Exito {
+    param (
+        [string]$Operacion,
+        [bool]$Exito
+    )
+    if ($Exito) {
+        Registrar-Estado $Operacion "Éxito"
+    } else {
+        Registrar-Estado $Operacion "Error"
+    }
+}
+
 # Instalar programas utilizando Winget
 try {
     winget install --id=Adobe.Acrobat.Reader.64-bit -e --silent
-    Registrar-Estado "Instalación de Adobe Acrobat Reader" "Éxito"
+    Comprobar-Exito "Instalación de Adobe Acrobat Reader" $true
 } catch {
-    Registrar-Estado "Instalación de Adobe Acrobat Reader" "Error: $_"
+    Comprobar-Exito "Instalación de Adobe Acrobat Reader" $false
 }
 
 try {
     winget install --id=Google.Chrome -e --silent
-    Registrar-Estado "Instalación de Google Chrome" "Éxito"
+    Comprobar-Exito "Instalación de Google Chrome" $true
 } catch {
-    Registrar-Estado "Instalación de Google Chrome" "Error: $_"
+    Comprobar-Exito "Instalación de Google Chrome" $false
 }
 
 try {
     winget install --id=7zip.7zip -e --silent
-    Registrar-Estado "Instalación de 7-Zip" "Éxito"
+    Comprobar-Exito "Instalación de 7-Zip" $true
 } catch {
-    Registrar-Estado "Instalación de 7-Zip" "Error: $_"
+    Comprobar-Exito "Instalación de 7-Zip" $false
 }
 
 try {
     winget install --id=VideoLAN.VLC -e --silent
-    Registrar-Estado "Instalación de VLC" "Éxito"
+    Comprobar-Exito "Instalación de VLC" $true
 } catch {
-    Registrar-Estado "Instalación de VLC" "Error: $_"
+    Comprobar-Exito "Instalación de VLC" $false
 }
 
 try {
     winget install --id=RARLab.WinRAR -e --silent
-    Registrar-Estado "Instalación de WinRAR" "Éxito"
+    Comprobar-Exito "Instalación de WinRAR" $true
 } catch {
-    Registrar-Estado "Instalación de WinRAR" "Error: $_"
+    Comprobar-Exito "Instalación de WinRAR" $false
 }
 
 try {
     winget install --id=Mozilla.Firefox -e --silent
-    Registrar-Estado "Instalación de Firefox" "Éxito"
+    Comprobar-Exito "Instalación de Firefox" $true
 } catch {
-    Registrar-Estado "Instalación de Firefox" "Error: $_"
+    Comprobar-Exito "Instalación de Firefox" $false
 }
 
 # Deshabilitar IPv6 en todos los adaptadores
@@ -64,9 +77,9 @@ try {
     Get-NetAdapter | ForEach-Object {
         Disable-NetAdapterBinding -Name $_.Name -ComponentID ms_tcpip6
     }
-    Registrar-Estado "Deshabilitar IPv6 en adaptadores de red" "Éxito"
+    Comprobar-Exito "Deshabilitar IPv6 en adaptadores de red" $true
 } catch {
-    Registrar-Estado "Deshabilitar IPv6 en adaptadores de red" "Error: $_"
+    Comprobar-Exito "Deshabilitar IPv6 en adaptadores de red" $false
 }
 
 # Configurar plan de energía
@@ -75,9 +88,9 @@ try {
     powercfg -change -monitor-timeout-ac 0
     powercfg -change -hibernate-timeout-ac 0
     powercfg -change -disk-timeout-ac 0
-    Registrar-Estado "Configuración del plan de energía" "Éxito"
+    Comprobar-Exito "Configuración del plan de energía" $true
 } catch {
-    Registrar-Estado "Configuración del plan de energía" "Error: $_"
+    Comprobar-Exito "Configuración del plan de energía" $false
 }
 
 # Activar y luego desactivar BitLocker
@@ -89,16 +102,15 @@ try {
         foreach ($drive in $drives) {
             try {
                 Enable-BitLocker -MountPoint $drive.MountPoint -RecoveryPasswordProtector -UsedSpaceOnly
-                Registrar-Estado "BitLocker en unidad $($drive.MountPoint)" "Cifrado iniciado"
                 Disable-BitLocker -MountPoint $drive.MountPoint
-                Registrar-Estado "BitLocker en unidad $($drive.MountPoint)" "Descifrado completado"
+                Comprobar-Exito "BitLocker en unidad $($drive.MountPoint)" $true
             } catch {
-                Registrar-Estado "BitLocker en unidad $($drive.MountPoint)" "Error: $_"
+                Comprobar-Exito "BitLocker en unidad $($drive.MountPoint)" $false
             }
         }
     }
 } catch {
-    Registrar-Estado "BitLocker" "Error: $_"
+    Comprobar-Exito "BitLocker" $false
 }
 
 # Buscar e instalar actualizaciones de Windows
@@ -106,9 +118,9 @@ try {
     Install-Module -Name PSWindowsUpdate -Force -Scope CurrentUser -ErrorAction Stop
     Import-Module PSWindowsUpdate -ErrorAction Stop
     Get-WindowsUpdate -AcceptAll -Install -AutoReboot
-    Registrar-Estado "Actualización de Windows" "Éxito"
+    Comprobar-Exito "Actualización de Windows" $true
 } catch {
-    Registrar-Estado "Actualización de Windows" "Error: $_"
+    Comprobar-Exito "Actualización de Windows" $false
 }
 
 # Actualizar controladores automáticamente
@@ -118,16 +130,16 @@ try {
         foreach ($device in $devices) {
             try {
                 Update-PnpDevice -InstanceId $device.InstanceId -Confirm:$false
-                Registrar-Estado "Actualización del controlador $($device.Name)" "Éxito"
+                Comprobar-Exito "Actualización del controlador $($device.Name)" $true
             } catch {
-                Registrar-Estado "Actualización del controlador $($device.Name)" "Error: $_"
+                Comprobar-Exito "Actualización del controlador $($device.Name)" $false
             }
         }
     } else {
         Registrar-Estado "Actualización de controladores" "No se encontraron dispositivos con errores."
     }
 } catch {
-    Registrar-Estado "Actualización de controladores" "Error: $_"
+    Comprobar-Exito "Actualización de controladores" $false
 }
 
 # Mostrar el registro final del estado de las operaciones
