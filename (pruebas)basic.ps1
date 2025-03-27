@@ -72,6 +72,13 @@ try {
     Comprobar-Exito "Instalación de Firefox" $false
 }
 
+try {
+    winget install --id=Microsoft.Office -e --silent
+    Comprobar-Exito "Instalación de Microsoft Office" $true
+} catch {
+    Comprobar-Exito "Instalación de Microsoft Office" $false
+}
+
 # Deshabilitar IPv6 en todos los adaptadores
 try {
     Get-NetAdapter | ForEach-Object {
